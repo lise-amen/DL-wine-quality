@@ -11,7 +11,7 @@ My objectives are :
 - Tune parameters of a neural network
 
 
-## Features
+## Steps to improve the score
 
 ## Project structure
 ```
