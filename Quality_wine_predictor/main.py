@@ -4,36 +4,29 @@ from models import *
 
 if __name__ == "__main__":
     
+    # load datasets
     df = load_datasets('./Wine-dataset/wine.csv')
 
+    # display information about dataset
+    explore_datasets(df, "quality")
+    
+    # display correlation and plot the graph
     display_correlation(df, "quality")
 
+    # resample dataframe
     df = resampling(df, "quality")
 
-    X_train, X_test, y_train, y_test = split_train_test(df, "quality")
+    # split into test and train set 
+    X_train, X_test, y_train, y_test = split_train_test(df, "quality", 0.8)
 
+    # standardize X_train, X_test
     X_train, X_test = standard_scaler(X_train, X_test)
 
-    df = df.drop(columns=['pH'])
-    df = df.drop(columns=['residual sugar'])
-    df = df.drop(columns=['sulphates'])
+    # drop columns with a low correlation
+    df = drop_low_correlation(df)
 
-    model = create_mlp(12)
-
-    # Build the model
-    model.build()
-
-    model.summary()
-
-    callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
-    #Compile the model
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    model.fit(X_train, y_train, batch_size=200, epochs=250) 
+    # create and train the model
+    model = wine_quality_predictor(X_train, y_train)
 
     # evaluate the keras model
-    _  , accuracy = model.evaluate(X_test, y_test)
-    print('Accuracy: %.2f' % (accuracy*100))
-
-    # evaluate the keras model
-    _, accuracy = model.evaluate(X_train, y_train)
-    print('Accuracy: %.2f' % (accuracy*100))
+    evaluate_accuracy(model, X_train, X_test, y_train, y_test)
